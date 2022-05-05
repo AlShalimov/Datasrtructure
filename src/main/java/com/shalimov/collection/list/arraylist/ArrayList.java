@@ -2,35 +2,40 @@ package com.shalimov.collection.list.arraylist;
 
 import com.shalimov.collection.list.List;
 
-public class ArrayList implements List {
+import java.util.Arrays;
+
+public class ArrayList<T> implements List<T> {
     private static final int INITIAL_CAPACITY = 5;
     private int size;
-    private Object[] array;
+    private T[] array;
 
     public ArrayList() {
         this(INITIAL_CAPACITY);
     }
 
+    @SuppressWarnings("unchecked")
     public ArrayList(int INITIAL_CAPACITY) {
-       array = new Object[INITIAL_CAPACITY];
+
+        Object array = new Object[INITIAL_CAPACITY];
+        this.array = (T[]) array;
     }
 
     @Override
-    public void add(Object value) {
+    public void add(T value) {
         add(value, size);
     }
 
     @Override
-    public void add(Object value, int index) {
+    public void add(T value, int index) {
         ensureCapacity();
         validateIndexForAdd(index);
-        System.arraycopy(array, 0, array, index, size - index);
+        System.arraycopy(array, index, array, index +1, size - index  );
         array[index] = value;
         size++;
     }
 
     public boolean isEmpty() {
-        return size == 0 ;
+        return size == 0;
     }
 
 
@@ -40,19 +45,17 @@ public class ArrayList implements List {
 
     @Override
     public void clear() {
-        for (int i = 0; i < array.length; i++) {
-            array[i] = null;
-        }
+        Arrays.fill(array, null);
         size = 0;
     }
 
     @Override
-    public boolean contains(Object value) {
+    public boolean contains(T value) {
         return indexOf(value) != -1;
     }
 
     @Override
-    public int indexOf(Object value) {
+    public int indexOf(T value) {
         for (int i = 0; i <= size - 1; i++) {
             if (array[i].equals(value)) {
                 return i;
@@ -62,8 +65,8 @@ public class ArrayList implements List {
     }
 
     @Override
-    public int lastIndexOf(Object value) {
-        for (int i = size - 1; i >= 0; i--) {
+    public int lastIndexOf(T value) {
+        for (int i = size -1; i >= 0; i--) {
             if (array[i].equals(value)) {
                 return i;
             }
@@ -72,9 +75,9 @@ public class ArrayList implements List {
     }
 
     @Override
-    public Object set(Object value, int index) {
+    public T set(T value, int index) {
         validateIndex(index);
-        Object tmp = array[index];
+        T tmp = array[index];
         array[index] = value;
         return tmp;
     }
@@ -82,16 +85,16 @@ public class ArrayList implements List {
 
     @Override
     public String toString() {
-        String result = "";
+        StringBuilder result = new StringBuilder();
         for (int i = 0; i <= size - 1; i++) {
-            result = result + array[i];
+            result.append(array[i]);
         }
         return result + " size=" + size;
     }
 
 
     @Override
-    public Object get(int index) {
+    public T get(int index) {
         if (index < 0 || index >= size) {
             throw new IllegalArgumentException("index must be between 0 and " + (size - 1));
         }
@@ -99,20 +102,21 @@ public class ArrayList implements List {
     }
 
     @Override
-    public Object remove(int index) {
+    public T remove(int index) {
         validateIndex(index);
-        Object result = get(index);
+        T result = get(index);
         System.arraycopy(array, index + 1, array, index, size - index - 1);
         array[size - 1] = null;
         size--;
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     private void ensureCapacity() {
         if (size == array.length) {
             Object[] tmpArray = new Object[(int) ((array.length * 1.5) + 1)];
             System.arraycopy(array, 0, tmpArray, 0, size);
-            array = tmpArray;
+            array = (T[]) tmpArray;
         }
     }
 
