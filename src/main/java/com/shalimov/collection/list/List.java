@@ -1,5 +1,7 @@
 package com.shalimov.collection.list;
 
+import java.util.Iterator;
+
 public interface List <T>{
    void  add(T  value);
    void add(T value, int index);
@@ -13,4 +15,5 @@ public interface List <T>{
    boolean contains(T value);
    T get(int index);
    T remove(int index);
+   Iterator<T> iterator();
 }

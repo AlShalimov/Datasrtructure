@@ -3,6 +3,8 @@ package com.shalimov.collection.list;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Iterator;
+
 import static org.junit.Assert.*;
 
 
@@ -117,5 +119,28 @@ public abstract class AbstractListTest {
         assertEquals(4, list.size());
     }
 
+    @Test
+    public void testIteratorHasNext() {
+        Iterator<String> iterator = list.iterator();
+        assertTrue(iterator.hasNext());
+    }
+
+    @Test
+    public void testNextIterator() {
+        Iterator<String> iterator = list.iterator();
+        assertTrue(iterator.hasNext());
+        iterator.next();
+    }
+
+    @Test
+    public void testIteratorRemove() {
+        Iterator<String> iterator = list.iterator();
+        assertEquals(5, list.size());
+        assertTrue(iterator.hasNext());
+        iterator.next();
+        iterator.remove();
+        assertEquals(4, list.size());
+    }
 }
+
 

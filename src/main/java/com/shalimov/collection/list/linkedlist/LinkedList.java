@@ -2,6 +2,8 @@ package com.shalimov.collection.list.linkedlist;
 
 import com.shalimov.collection.list.List;
 
+import java.util.Iterator;
+
 
 public class LinkedList<T> implements List<T> {
     Node<T> head;
@@ -83,7 +85,7 @@ public class LinkedList<T> implements List<T> {
     public int lastIndexOf(T value) {
         Node<T> current = tail;
         for (int i = size - 1; i >= 0; i--) {
-            if (value.equals(current.value)){
+            if (value.equals(current.value)) {
                 return i;
             }
             current = current.prev;
@@ -137,6 +139,29 @@ public class LinkedList<T> implements List<T> {
         return current.value;
     }
 
+    @Override
+    public Iterator<T> iterator() {
+        return new LinkedListIterator();
+    }
+
+    private class LinkedListIterator implements Iterator<T> {
+        private Node<T> current = head;
+
+        @Override
+        public boolean hasNext() {
+            return false;
+        }
+
+        @Override
+        public T next() {
+            return null;
+        }
+
+        @Override
+        public void remove() {
+            Iterator.super.remove();
+        }
+    }
 
     private Node<T> getNode(int index) {
         Node<T> current;

@@ -3,6 +3,8 @@ package com.shalimov.collection.list.arraylist;
 import com.shalimov.collection.list.List;
 
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 public class ArrayList<T> implements List<T> {
     private static final int INITIAL_CAPACITY = 5;
@@ -29,7 +31,7 @@ public class ArrayList<T> implements List<T> {
     public void add(T value, int index) {
         ensureCapacity();
         validateIndexForAdd(index);
-        System.arraycopy(array, index, array, index +1, size - index  );
+        System.arraycopy(array, index, array, index + 1, size - index);
         array[index] = value;
         size++;
     }
@@ -66,7 +68,7 @@ public class ArrayList<T> implements List<T> {
 
     @Override
     public int lastIndexOf(T value) {
-        for (int i = size -1; i >= 0; i--) {
+        for (int i = size - 1; i >= 0; i--) {
             if (array[i].equals(value)) {
                 return i;
             }
@@ -131,6 +133,39 @@ public class ArrayList<T> implements List<T> {
             throw new IllegalArgumentException("index must be between 0 and " + size + 1);
         }
     }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new ArrayListIterator();
+    }
+
+    private class ArrayListIterator implements Iterator<T> {
+        private int index;
+
+        @Override
+        public boolean hasNext() {
+            return index < size;
+        }
+
+        @Override
+        public T next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException("Next element is not exist");
+            }
+            return array[index++];
+        }
+
+        @Override
+        public void remove() {
+            if (array[index] == null) {
+                throw new IllegalArgumentException("Element is not exist");
+            } else {
+                array[index] = null;
+                size--;
+            }
+        }
+    }
 }
+
 
 

@@ -1,5 +1,4 @@
 package com.shalimov.collection.list.linkedlist;
-
 import com.shalimov.collection.list.AbstractListTest;
 import com.shalimov.collection.list.List;
 
