@@ -3,6 +3,7 @@ package com.shalimov.collection.list.linkedlist;
 import com.shalimov.collection.list.List;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 
 public class LinkedList<T> implements List<T> {
@@ -59,7 +60,6 @@ public class LinkedList<T> implements List<T> {
         }
         return result + " size=" + size;
     }
-
 
     @Override
     public int indexOf(T value) {
@@ -149,17 +149,27 @@ public class LinkedList<T> implements List<T> {
 
         @Override
         public boolean hasNext() {
-            return false;
+            return current != null;
         }
 
         @Override
         public T next() {
-            return null;
+            if (!hasNext()) {
+                throw new NoSuchElementException("Next element is not exist");
+            }
+            current = current.next;
+            return current.value;
         }
 
         @Override
         public void remove() {
-            Iterator.super.remove();
+            if (current == null) {
+                throw new IllegalStateException("The method next() not used previously ");
+            }
+            Node nodeBeforeRemove = current.prev;
+            current.prev = current.next;
+            current.next = nodeBeforeRemove;
+            size--;
         }
     }
 
