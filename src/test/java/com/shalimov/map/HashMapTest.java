@@ -2,6 +2,8 @@ package com.shalimov.map;
 
 import org.junit.Test;
 
+import java.util.Iterator;
+
 import static org.junit.Assert.*;
 
 public class HashMapTest {
@@ -66,10 +68,65 @@ public class HashMapTest {
         map.put(null, "value");
         assertTrue(map.containsKey(null));
     }
+
     @Test
-    public void GetByKeyInEmptyMapReturnNull(){
+    public void GetByKeyInEmptyMapReturnNull() {
         assertNull(map.get("key1"));
     }
+
+    @Test
+
+    public void whenMapIsEmptyThenReturnTrue() {
+        assertTrue(map.isEmpty());
+    }
+
+    @Test
+    public void whenMapIsNotEmptyThenReturnFalse() {
+        map.put("key2", "value3");
+        assertFalse(map.isEmpty());
+    }
+
+
+    @Test
+
+    public void whenAddValueThenValueIsPresent() {
+        map.put("key1", "value1");
+        map.put("key2", "value2");
+        Iterator<Map.Entry<String, String>> iterator = map.iterator();
+
+        assertTrue(iterator.hasNext());
+    }
+
+    @Test
+    public void NotEmptyMapWhenIteratorHasNextThenReturnTrue() {
+        map.put("key", "value");
+        Iterator<Map.Entry<String, String>> iterator = map.iterator();
+        assertTrue(iterator.hasNext());
+
+        map.remove("key");
+        assertFalse(iterator.hasNext());
+        map.put("key", "value");
+        assertTrue(iterator.hasNext());
+    }
+
+    @Test
+    public void WhenRemoveCalledAfterNextThenSizeShouldBeDecreasedByOneAndMapShouldNotContainKey() {
+        String key = "key";
+        map.put(key, "value");
+        assertEquals(1, map.size());
+
+        Iterator<Map.Entry<String, String>> iterator = map.iterator();
+        iterator.next();
+        iterator.remove();
+
+        assertEquals(0, map.size());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void whenRemoveInEmptyMap() {
+        map.remove("key1");
+    }
+
 }
 
 
