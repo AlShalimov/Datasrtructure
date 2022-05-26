@@ -126,7 +126,6 @@ public class HashMapTest {
     public void whenRemoveInEmptyMap() {
         map.remove("key1");
     }
-
 }
 
 
