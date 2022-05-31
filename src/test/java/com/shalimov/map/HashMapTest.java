@@ -105,7 +105,7 @@ public class HashMapTest {
 
         map.remove("key");
         assertFalse(iterator.hasNext());
-        map.put("key", "value");
+        map.put("key1", "value1");
         assertTrue(iterator.hasNext());
     }
 
@@ -122,10 +122,6 @@ public class HashMapTest {
         assertEquals(0, map.size());
     }
 
-    @Test(expected = NullPointerException.class)
-    public void whenRemoveInEmptyMap() {
-        map.remove("key1");
-    }
 }
 
 
