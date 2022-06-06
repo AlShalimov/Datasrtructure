@@ -4,11 +4,13 @@ import com.shalimov.collection.list.List;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.StringJoiner;
 
 
 public class LinkedList<T> implements List<T> {
-    Node<T> head;
-    Node<T> tail;
+    private Node<T> head;
+    private Node<T> tail;
     private int size;
 
     @Override
@@ -36,8 +38,8 @@ public class LinkedList<T> implements List<T> {
             newNode.prev = tail;
             tail = newNode;
         } else {
-            Node<T> current = getNode(index - 1);
-            Node<T> temp = current.next;
+            Node<T> temp = getNode(index);
+            Node<T> current = temp.prev;
             current.next = newNode;
             newNode.prev = current;
             newNode.next = temp;
@@ -54,18 +56,18 @@ public class LinkedList<T> implements List<T> {
 
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder();
-        for (int i = 0; i <= size - 1; i++) {
-            result.append(get(i));
+        StringJoiner result = new StringJoiner(",", "[", "]");
+        for (T value : this) {
+            result.add(String.valueOf(value));
         }
-        return result + " size=" + size;
+        return result.toString();
     }
 
     @Override
     public int indexOf(T value) {
         Node<T> current = head;
         for (int i = 0; i < size; i++) {
-            if (value.equals(current.value)) {
+            if (Objects.equals(current.value, value)) {
                 return i;
             }
             current = current.next;
@@ -85,7 +87,7 @@ public class LinkedList<T> implements List<T> {
     public int lastIndexOf(T value) {
         Node<T> current = tail;
         for (int i = size - 1; i >= 0; i--) {
-            if (value.equals(current.value)) {
+            if (Objects.equals(current.value, value)) {
                 return i;
             }
             current = current.prev;
@@ -139,13 +141,13 @@ public class LinkedList<T> implements List<T> {
         return current.value;
     }
 
-    @Override
     public Iterator<T> iterator() {
         return new LinkedListIterator();
     }
 
     private class LinkedListIterator implements Iterator<T> {
         private Node<T> current = head;
+        boolean canRemove;
 
         @Override
         public boolean hasNext() {
@@ -157,8 +159,10 @@ public class LinkedList<T> implements List<T> {
             if (!hasNext()) {
                 throw new NoSuchElementException("Next element is not exist");
             }
+            T value = current.value;
             current = current.next;
-            return current.value;
+            canRemove = true;
+            return value;
         }
 
         @Override
@@ -166,9 +170,21 @@ public class LinkedList<T> implements List<T> {
             if (current == null) {
                 throw new IllegalStateException("The method next() not used previously ");
             }
-            Node nodeBeforeRemove = current.prev;
-            current.prev = current.next;
-            current.next = nodeBeforeRemove;
+            if (size == 1) {
+                head = tail = null;
+            } else if (current == head) {
+                tail.prev = null;
+                head = current.next;
+            } else if (current == tail) {
+                tail = current.prev;
+                tail.next = null;
+            } else {
+                Node<T> prevNode = current.prev;
+                Node<T> nextNode = current.next;
+                prevNode.next = nextNode;
+                nextNode.prev = prevNode;
+            }
+            canRemove = false;
             size--;
         }
     }

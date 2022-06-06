@@ -10,6 +10,7 @@ public class HashMap<K, V> implements Map<K, V> {
     private Entry<K, V>[] buckets;
     private int size;
 
+
     public HashMap() {
         this(INITIAL_CAPACITY);
     }
@@ -20,48 +21,17 @@ public class HashMap<K, V> implements Map<K, V> {
 
     @Override
     public V put(K key, V value) {
-        growCapacity();
-        int bucketNumber = getIndexOfBucket(key);
-        Entry<K, V> entry = buckets[bucketNumber];
-        if (entry == null) {
-            Entry<K, V> newEntry = new Entry<>(key, value);
-            buckets[bucketNumber] = newEntry;
-            size++;
-            return value;
-        }
-        if (entry.key.equals(key)) {
-            V oldValue = entry.value;
-            entry.value = value;
+        Entry<K, V> oldEntry = (Entry<K, V>) getEntry(key);
+        if (oldEntry != null) {
+            V oldValue = oldEntry.getValue();
+            oldEntry.setValue(value);
             return oldValue;
-        } else {
-            if (entry.next != null) {
-                Entry<K, V> tempEntry = entry.next;
-                if (tempEntry.key.equals(key)) {
-                    V oldValue = tempEntry.value;
-                    tempEntry.value = value;
-                    return oldValue;
-                }
-                while (tempEntry.next != null) {
-
-                    if (tempEntry.key.equals(key)) {
-                        V oldValue = tempEntry.value;
-                        tempEntry.value = value;
-                        return oldValue;
-                    }
-                    tempEntry = tempEntry.next;
-                }
-                if (tempEntry.key.equals(key)) {
-                    V oldValue = tempEntry.value;
-                    tempEntry.value = value;
-                    return oldValue;
-                }
-                tempEntry.next = new Entry<>(key, value);
-            } else {
-                entry.next = new Entry<>(key, value);
-            }
-            size++;
+        }else if (size>buckets.length*LOAD_FACTOR){
+            growCapacity();
         }
-        return value;
+        innerPut(new Entry<>(key,value));
+        size++;
+            return null;
     }
 
     @Override
@@ -71,7 +41,7 @@ public class HashMap<K, V> implements Map<K, V> {
         if (entry != null) {
             do {
                 if (entry.getKey().equals(key)) {
-                    V tmpValue = entry.value;
+                    V tempValue = entry.value;
                     if (entry.next == null) {
 
                         buckets[bucketNumber] = null;
@@ -79,7 +49,7 @@ public class HashMap<K, V> implements Map<K, V> {
                         buckets[bucketNumber] = entry.next;
                     }
                     size--;
-                    return tmpValue;
+                    return tempValue;
                 } else {
                     entry = entry.next;
                 }
@@ -91,22 +61,24 @@ public class HashMap<K, V> implements Map<K, V> {
 
     @Override
     public V get(K key) {
-        int bucketNumber = getIndexOfBucket(key);
-        Entry<K, V> entry = buckets[bucketNumber];
-        if (isEmpty()) {
+        Entry<K, V> entry = (Entry<K, V>) getEntry(key);
+        if (entry!=null){
+            return entry.value;
+        }
+            return null;
+    }
+
+    private Map.Entry<K,V> getEntry(K key) {
+        int indexOfBucket = getIndexOfBucket(key);
+        if (buckets[indexOfBucket] == null) {
             return null;
         }
-        if (entry.getKey() != null) {
-            if (entry.getKey().equals(key)) {
-                return entry.value;
+        Iterator<Map.Entry<K, V>> iterator = iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<K, V> entry =  iterator.next();
+            if (Objects.equals(entry.getKey(), key)) {
+                return  entry;
             }
-        } else {
-            return entry.value;
-        }
-
-        while (entry.next != null) {
-            entry = entry.next;
-            return entry.value;
         }
         return null;
     }
@@ -142,18 +114,23 @@ public class HashMap<K, V> implements Map<K, V> {
         if (buckets.length * LOAD_FACTOR < size) {
             int capacity = (int) (buckets.length * INCREASE_STEP);
             Entry<K, V>[] newBuckets = new Entry[capacity];
-            ArrayList<Map.Entry<K, V>> entries = new ArrayList<>();
-            Iterator<Map.Entry<K, V>> iterator = this.iterator();
-            while (iterator.hasNext()) {
-                Map.Entry<K, V> rr = iterator.next();
-                entries.add(rr);
+            for (Map.Entry<K, V> entry : this) {
+                innerPut(newBuckets, entry);
             }
-            size = 0;
             buckets = newBuckets;
-            for (Map.Entry<K, V> entry : entries) {
-                put(entry.getKey(), entry.getValue());
-            }
         }
+    }
+    private void innerPut(Entry<K, V> entry) {
+        innerPut(buckets, entry);
+    }
+
+    private void innerPut(Entry<K, V>[] newBuckets, Map.Entry<K, V> entry) {
+        K key = entry.getKey();
+        int indexOfBucket = getIndexOfBucket(key);
+        if (newBuckets[indexOfBucket] == null) {
+            newBuckets[indexOfBucket] = new Entry<>(entry.getKey(), entry.getValue());
+        }
+        newBuckets[indexOfBucket].setValue(entry.getValue());
     }
 
     @Override
@@ -162,7 +139,6 @@ public class HashMap<K, V> implements Map<K, V> {
     }
 
     private class HashMapIterator implements Iterator<Map.Entry<K, V>> {
-        private Entry currentEntry;
         private int bucketIndex;
         private int currentCountEntry;
         private int currentEntryAmountInBucket;
@@ -181,7 +157,7 @@ public class HashMap<K, V> implements Map<K, V> {
             for (int i = bucketIndex; i < buckets.length; i++) {
                 if (buckets[i] != null) {
                     bucketIndex = i;
-                    currentEntry = buckets[i];
+                    Entry<K, V> currentEntry = buckets[i];
                     Entry<K, V> value = currentEntry;
                     if (currentEntryAmountInBucket == 0) {
                         currentEntryAmountInBucket++;
@@ -193,13 +169,6 @@ public class HashMap<K, V> implements Map<K, V> {
                         currentEntry = currentEntry.next;
                     }
                     if (null != currentEntry.next) {
-                        currentEntry = currentEntry.next;
-                        currentCountEntry++;
-                        currentEntryAmountInBucket++;
-                        canRemove = true;
-                        return currentEntry;
-                    }
-                    if (currentEntry.next != null) {
                         currentEntry = currentEntry.next;
                         currentCountEntry++;
                         currentEntryAmountInBucket++;

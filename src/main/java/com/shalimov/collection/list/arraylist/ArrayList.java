@@ -2,9 +2,7 @@ package com.shalimov.collection.list.arraylist;
 
 import com.shalimov.collection.list.List;
 
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 public class ArrayList<T> implements List<T> {
     private static final int INITIAL_CAPACITY = 5;
@@ -15,11 +13,8 @@ public class ArrayList<T> implements List<T> {
         this(INITIAL_CAPACITY);
     }
 
-    @SuppressWarnings("unchecked")
     public ArrayList(int INITIAL_CAPACITY) {
-
-        Object array = new Object[INITIAL_CAPACITY];
-        this.array = (T[]) array;
+        this.array = (T[]) new Object[INITIAL_CAPACITY];
     }
 
     @Override
@@ -40,7 +35,6 @@ public class ArrayList<T> implements List<T> {
         return size == 0;
     }
 
-
     public int size() {
         return size;
     }
@@ -58,8 +52,8 @@ public class ArrayList<T> implements List<T> {
 
     @Override
     public int indexOf(T value) {
-        for (int i = 0; i <= size - 1; i++) {
-            if (array[i].equals(value)) {
+        for (int i = 0; i < size; i++) {
+            if (Objects.equals(array[i], value)) {
                 return i;
             }
         }
@@ -69,7 +63,7 @@ public class ArrayList<T> implements List<T> {
     @Override
     public int lastIndexOf(T value) {
         for (int i = size - 1; i >= 0; i--) {
-            if (array[i].equals(value)) {
+            if (Objects.equals(array[i], value)) {
                 return i;
             }
         }
@@ -79,27 +73,23 @@ public class ArrayList<T> implements List<T> {
     @Override
     public T set(T value, int index) {
         validateIndex(index);
-        T tmp = array[index];
+        T temp = array[index];
         array[index] = value;
-        return tmp;
+        return temp;
     }
-
 
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder();
-        for (int i = 0; i <= size - 1; i++) {
-            result.append(array[i]);
+        StringJoiner stringJoiner = new StringJoiner(",", "[", "]");
+        for (T value : this) {
+            stringJoiner.add(String.valueOf(value));
         }
-        return result + " size=" + size;
+        return stringJoiner.toString();
     }
-
 
     @Override
     public T get(int index) {
-        if (index < 0 || index >= size) {
-            throw new IllegalArgumentException("index must be between 0 and " + (size - 1));
-        }
+        validateIndex(index);
         return array[index];
     }
 
@@ -113,12 +103,11 @@ public class ArrayList<T> implements List<T> {
         return result;
     }
 
-    @SuppressWarnings("unchecked")
     private void ensureCapacity() {
         if (size == array.length) {
-            Object[] tmpArray = new Object[(int) ((array.length * 1.5) + 1)];
-            System.arraycopy(array, 0, tmpArray, 0, size);
-            array = (T[]) tmpArray;
+            T[] tempArray = (T[]) new Object[(int) ((array.length * 1.5) + 1)];
+            System.arraycopy(array, 0, tempArray, 0, size);
+            array = (T[]) tempArray;
         }
     }
 
@@ -134,7 +123,7 @@ public class ArrayList<T> implements List<T> {
         }
     }
 
-    @Override
+
     public Iterator<T> iterator() {
         return new ArrayListIterator();
     }
@@ -158,11 +147,9 @@ public class ArrayList<T> implements List<T> {
         @Override
         public void remove() {
             if (array[index] == null) {
-                throw new IllegalArgumentException("Element is not exist");
-            } else {
-                array[index] = null;
-                size--;
+                throw new IllegalStateException("Element is not exist");
             }
+            ArrayList.this.remove(index);
         }
     }
 }
